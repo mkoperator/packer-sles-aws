@@ -1,0 +1,40 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": ""
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "us-east-1",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "suse-sles-15-sp2-v????????-hvm-ssd-x86_64",
+          "root-device-type": "ebs"
+        },
+        "owners": ["amazon"],
+        "most_recent": true
+      },
+      "instance_type": "t2.medium",
+      "ssh_username": "ec2-user",
+      "ami_name": "suse-test-image {{timestamp}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": ["sudo systemctl enable docker.service"]
+    },
+    {
+      "type": "shell",
+      "inline": ["sudo systemctl start docker.service"]
+    },
+    {
+      "type": "shell",
+      "inline": ["sudo /usr/sbin/usermod -aG docker ec2-user"]
+    }
+  ]
+}
